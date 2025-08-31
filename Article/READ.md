@@ -1,25 +1,21 @@
-
 # 🎯 LaTeX 风格文件说明与可定制指南
 
-本文基于你提供的**风格文件**（导言区代码），按模块解释其作用，并给出**如何修改**的常用方法与示例。复制即可作为 `README.md` 使用。
+本文基于你的 **LaTeX 风格文件**（导言区代码），按模块解释其作用，并给出**如何修改**的常用方法与示例。可直接保存为 `README.md`。
 
 ---
 
 ## 0) 快速上手
 
-- 使用 **XeLaTeX / LuaLaTeX** 编译（必须，已在样式中强校验）。
-- 按如下顺序在你的 `main.tex` 中导入样式（或把这段当作独立的 `miextras.sty` 再 `\usepackage{miextras}`）：
+- 使用 **XeLaTeX / LuaLaTeX** 编译（必须，样式已强校验）。
+- 将完整风格代码粘贴到你的 `main.tex` 导言区，或另存为 `miextras.sty` 并在主文档中：
   ```latex
-  % 放在 \documentclass 之后
-  % \input{miextras.sty} 或 \usepackage{miextras}
+  \usepackage{miextras}
 
-	•	章节号由你自定义计数器 chapter 控制，article 也能做“第X章”的编号（见 §7）。
+	•	章节编号使用自定义 chapter 计数器（即便是 article 也能做“第X章”样式），见 §12。
 
 ⸻
 
-1) Engine（编译引擎强校验）
-
-代码片段：
+1) Engine（编译引擎）
 
 \usepackage{ifxetex,ifluatex}
 \usepackage{everypage}
@@ -27,15 +23,12 @@
   \errmessage{Please compile with XeLaTeX or LuaLaTeX}
 \fi\fi
 
-作用：限制必须用 XeLaTeX 或 LuaLaTeX，以支持中文与 fontspec。
-
-修改：如需兼容 pdfLaTeX，删除这一段并移除 fontspec/ctex 依赖（不推荐）。
+作用：强制使用 XeLaTeX / LuaLaTeX 以支持中文与 fontspec。
+修改：不建议移除；如需 pdfLaTeX 需同时放弃 fontspec/ctex。
 
 ⸻
 
 2) 字体与页面（Fonts & Page）
-
-代码片段：
 
 \usepackage{ctex,fontspec,geometry,xcolor}
 \geometry{paperwidth=7.5in,paperheight=10in, margin=0.7in}
@@ -44,31 +37,15 @@
 \linespread{1.4}
 \pagecolor{white}\color{black}
 
-作用：
-	•	设置纸张与页边距（geometry）。
-	•	西文字体、中文主字体（优先 Noto Serif CJK SC，否则回退 FandolSong）。
-	•	行距 1.4；页面背景白色。
-
-常见修改：
-	•	改纸张/页边距：
-
-\geometry{a4paper, margin=1in}           % A4
-% 或 \geometry{paperwidth=6in,paperheight=9in, margin=0.8in}
-
-
-	•	改字体：
-
-\setmainfont{TeX Gyre Termes}            % 西文
-\setCJKmainfont{Songti SC}               % 中文（Mac）
-
-
-	•	改行距：\linespread{1.2} / \linespread{1.6}
+	•	作用：页面尺寸、边距、字体、行距与页面前景背景色。
+	•	常改：
+	•	纸张：a4paper, margin=1in 或 6x9 书籍尺寸。
+	•	字体：\setmainfont{TeX Gyre Termes}，\setCJKmainfont{Songti SC}。
+	•	行距：\linespread{1.2} / 1.6。
 
 ⸻
 
 3) 调色板（Colors）
-
-代码片段：
 
 \definecolor{brand}{HTML}{1A9D8F}
 \definecolor{brandD}{HTML}{2A7F6F}
@@ -78,58 +55,39 @@
 \definecolor{accent}{HTML}{FF6B6B}
 \definecolor{accentD}{HTML}{D94F4F}
 \definecolor{soft}{HTML}{F3F8F7}
-% 以及一组 xhs* 补充色
+% 以及 xhs* 补充色
 
-作用：统一全局主色、副主色、正文墨色、盒子背景、强调色等。
-
-修改：直接替换 HEX 值即可。例如：
-
-\definecolor{brand}{HTML}{0A84FF}  % 换为 iOS 蓝
-
+	•	作用：统一品牌色、正文色、盒子背景、强调色等。
+	•	修改：直接替换 HEX 值即可（如 brand → 0A84FF）。
 
 ⸻
 
 4) 日期宏（Date macro）
 
-代码片段：
-
 \newcommand{\padzero}[1]{\ifnum#1<10 0\fi\number#1}
 \newcommand{\BrandYMD}{{\the\year·\padzero{\the\month}·\padzero{\the\day}}}
 
-作用：生成 YYYY·MM·DD 的日期格式，可在封面或页脚使用：{\BrandYMD}。
-
-修改：改分隔符或格式：
-
-\newcommand{\BrandYMD}{{\the\year-\padzero{\the\month}-\padzero{\the\day}}}
-
+	•	作用：输出 YYYY·MM·DD。
+	•	修改：改分隔符：{\the\year-\padzero{\the\month}-\padzero{\the\day}}。
 
 ⸻
 
 5) 标题样式（Section Titles）
-
-代码片段：
 
 \usepackage{titlesec}
 \titleformat{\section}[block]
   {\centering\bfseries\color{keydark}\fontsize{24pt}{26pt}\selectfont}
   {\thesection}{0.6em}{}
 \titlespacing*{\section}{0pt}{0.9em}{0.5em}
-
 \titleformat{\subsection}{\Large\bfseries\color{brand}}{\thesubsection}{0.6em}{}
 \titlespacing*{\subsection}{0pt}{0.8em}{0.4em}
 
-作用：自定义 \section / \subsection 的字号、颜色、间距等。
-
-常见修改：
-	•	改字号：24pt → 20pt，26pt → 24pt
-	•	改颜色：\color{brand} / \color{ink}
-	•	改间距（上/下）：\titlespacing*{\section}{0pt}{1.2em}{0.6em}
+	•	作用：自定义 \section/\subsection 字号、颜色、间距。
+	•	常改：字号、颜色（keydark→brand）、上下间距。
 
 ⸻
 
 6) 左侧彩带（Left bands）
-
-代码片段：
 
 \usepackage{tikz,eso-pic}
 \usetikzlibrary{positioning,calc}
@@ -145,18 +103,12 @@
 }
 \AddEverypageHook{\PutLeftBands}
 
-作用：在每页左侧绘制两条竖向色带，增强视觉识别。
-
-修改：
-	•	关闭色带（临时）：注释掉 \AddEverypageHook{\PutLeftBands}。
-	•	改宽度：调整 \LeftBandA、\LeftBandB。
-	•	改颜色：替换 keydark、keybg 为其他定义色。
+	•	作用：每页左侧两条竖向色带。
+	•	修改：调宽度 \LeftBandA/\LeftBandB，改色 keydark/keybg。
 
 ⸻
 
-7) 页眉页脚（Header / Footer）
-
-代码片段：
+7) 页眉页脚（fancyhdr）
 
 \usepackage{fancyhdr}
 \fancypagestyle{coverstyle}{%
@@ -170,37 +122,24 @@
 \fancyfoot[R]{\textcolor{brand}{\thepage}}
 \pagestyle{fancy}
 
-作用：
-	•	右上角显示“节号 + 节题”（\rightmark 来源于 \sectionmark 的自定义）。
-	•	左下角作者签名 + 系列名；右下角页码。
-	•	coverstyle 用于封面页无眉脚：单页使用 \thispagestyle{coverstyle}。
-
-常见修改：
-	•	改签名内容或隐藏：
-
-\fancyfoot[L]{\textcolor{brand}{@YourID}｜你的系列名 \seriesnum}
-% 或留空：\fancyfoot[L]{}
-
-
-	•	改页码位置：把 \fancyfoot[R]{...} 改到 C（中）或 L（左）。
+	•	作用：右上角节号+节题，左下角签名，右下角页码；coverstyle 可用于封面无眉脚（用 \thispagestyle{coverstyle}）。
+	•	修改：
+	•	签名：\fancyfoot[L]{\textcolor{brand}{@YourID}｜YourSeries \seriesnum}
+	•	页码位置：改 R→C/L。
 	•	关闭页眉横线：\renewcommand{\headrulewidth}{0pt}。
-	•	让奇偶页切换显示不同信息：用 \fancyhead[LE]{...}、\fancyhead[RO]{...}（需要 book 类更合理；article 也可用但不自动章切换）。
 
 ⸻
 
-8) 系列编号参数（Series number）
-
-代码片段：
+8) 系列编号参数
 
 \newcommand{\seriesnum}{I}
 
-作用：用于页脚中的系列编号展示，手动改即可。
+	•	作用：页脚显示系列编号。
+	•	修改：I/II/III 或 1/2/3。
 
 ⸻
 
 9) 高亮盒子（tcolorbox）
-
-代码片段：
 
 \usepackage[most]{tcolorbox}
 \tcbset{enhanced, boxrule=0.9pt, arc=3pt, left=10pt,right=10pt,top=10pt,bottom=10pt}
@@ -215,19 +154,12 @@
   fonttitle=\bfseries\large, coltitle=white, breakable
 }
 
-作用：提供 KeyBox/Takeaway 两种提示框。
-
-常见修改：
-	•	改标题文字：title=...
-	•	改边框/背景色：colframe=... / colback=...
-	•	改圆角：arc=6pt
-	•	改边框粗细：boxrule=1.1pt
+	•	作用：关键思想/要点总结的高亮盒子。
+	•	修改：title 文案、colframe/colback 颜色、arc 圆角、boxrule 线宽。
 
 ⸻
 
-10) 流式侧栏（SideBar）
-
-代码片段：
+10) 侧栏（SideBar）
 
 \usepackage{mdframed}
 \newmdenv[
@@ -237,56 +169,37 @@
   skipabove=6pt, skipbelow=6pt
 ]{SideBar}
 
-作用：左侧粗竖线 + 柔色背景的侧栏环境，用于阅读提示或备注。
-
-修改：
-
-linecolor=brandD, linewidth=3pt, backgroundcolor=keybg
-
+	•	作用：左侧实线 + 柔色背景的提示栏。
+	•	修改：linecolor/linewidth/backgroundcolor、内边距与上下间距。
 
 ⸻
 
-11) 数学环境与阴影定理（Math & Theorems）
-
-代码片段（要点）：
+11) 数学与定理环境
 
 \usepackage{amsmath,amssymb,bm,amsthm}
 \DeclareMathOperator{\Var}{Var}
 \newcommand{\E}{\mathbb{E}}
-
 \usepackage{framed}
 \definecolor{shadecolor}{RGB}{235,245,255}
 \newenvironment{ShadedTheorem}[1][]{%
   \begin{shaded}\begin{theorem}[#1]}{\end{theorem}\end{shaded}}
-
-\newtheoremstyle{customthm}{...}{...}{\itshape}{...}{\bfseries}{.}{...}{}
-\newtheoremstyle{customdef}{...}{...}{}{}{\bfseries}{.}{...}{}
-
+\newtheoremstyle{customthm}{0.8em}{0.8em}{\itshape}{}{\bfseries}{.}{0.5em}{}
+\newtheoremstyle{customdef}{0.8em}{0.8em}{}{}{\bfseries}{.}{0.5em}{}
 \theoremstyle{customthm}
 \newtheorem{theorem}{定理}[section]
-...
+\newtheorem{lemma}[theorem]{引理}
+\newtheorem{proposition}[theorem]{命题}
+\newtheorem{corollary}[theorem]{推论}
 \theoremstyle{customdef}
 \newtheorem{definition}[theorem]{定义}
+\newtheorem{remark}[theorem]{注释}
 
-作用：
-	•	定义 \E、\Var 记号。
-	•	定理体系（按 section 编号）：theorem/lemma/proposition/corollary/definition/remark。
-	•	ShadedTheorem：自带淡蓝底的“定理”阴影环境。
-
-修改：
-	•	改编号维度：按 chapter 编号 → 把 [section] 改为 [chapter]。
-	•	去掉阴影定理：不使用 ShadedTheorem，直接用 theorem；或改 shadecolor。
-	•	新增「命题+证明草图」环境：
-
-\newtheorem{claim}[theorem]{断言}
-
-
+	•	作用：定义 \E、\Var，定理体系按 section 编号；ShadedTheorem 为淡蓝阴影定理。
+	•	修改：将 [section] 替换为 [chapter] 以按章编号；或不使用 ShadedTheorem。
 
 ⸻
 
-12) 自定义“章”编号（在 article 类中模拟章节体系）
-
-代码片段：
+12) “章节”机制（在 article 中模拟章）
 
 \newcounter{chapter}
 \newcommand{\setchapter}[2]{%
@@ -296,69 +209,93 @@ linecolor=brandD, linewidth=3pt, backgroundcolor=keybg
 }
 \renewcommand{\thesection}{\arabic{chapter}.\arabic{section}}
 \renewcommand{\thesubsection}{\arabic{chapter}.\arabic{section}.\arabic{subsection}}
+\newcommand{\ChapterHeading}{%
+  \vspace*{0.6cm}
+  {\fontsize{26pt}{28pt}\selectfont\bfseries\color{keydark}
+   第\arabic{chapter}章\ \ChapterTitle\par}
+  \vspace{0.6cm}
+}
+\newcommand{\BeginChapter}[2]{%
+  \clearpage
+  \setchapter{#1}{#2}%
+  \ChapterHeading
+}
 
-\newcommand{\ChapterHeading}{...}
-\newcommand{\BeginChapter}[2]{\clearpage\setchapter{#1}{#2}\ChapterHeading}
+	•	作用：在 article 中模拟“第X章 标题”的编号与标题块。
+	•	用法：
 
-作用：即使在 article 类，也能用“第 X 章”的编号与标题块。
+\setchapter{1}{概率空间}
+\ChapterHeading
+% 或 \BeginChapter{2}{大数定律}
 
-用法：
 
-\setchapter{1}{概率空间}  % 设置本章编号与标题
-\ChapterHeading          % 打印“第1章 概率空间”
-% 或：\BeginChapter{2}{大数定律}  % 换章并自动打印
-
-修改：
-	•	改标题风格（字号/颜色/间距）：在 \ChapterHeading 中调整。
-	•	改编号格式：修改 \thesection 与 \thesubsection。
+	•	修改：在 \ChapterHeading 中改字号/颜色/间距；在 \thesection 改编号格式。
 
 ⸻
 
-13) 备注、例子与证明（Remark / Example / Proof）
-
-代码片段：
+13) 备注/示例/证明
 
 \newenvironment{RemarkNote}[1][]{ ... }
+\definecolor{exframe}{HTML}{6C5CE7}
+\definecolor{exbg}{HTML}{F2E9FF}
 \newtcolorbox{Example}[1][]{ ... }
 \renewenvironment{proof}[1][证明]{ ... }{ ... }
 
-作用：
-	•	RemarkNote：非盒子风的强调段落。
-	•	Example：紫色系盒子，适合放例子/练习。
-	•	proof：自定义了“证明”标题样式，自动 \qed 结束。
-
-修改：
-	•	改 RemarkNote 标题文字：把 Remark 改为 注 或 说明。
-	•	改 Example 的颜色：exframe / exbg 的 HEX。
+	•	作用：RemarkNote 强调段落、Example 例子盒子、proof 中文“证明”标题与自动 \qed。
+	•	修改：改 Remark 字样为 “注/说明/Remark”。调整 exframe/exbg 色值。
 
 ⸻
 
-14) 页末系列导航卡（SeriesCardEnd）
+14) 页末系列卡片
 
-代码片段：
+\newcommand{\SeriesCardEnd}[3]{ ... }
+% 用法：\SeriesCardEnd{I}{上一篇标题}{下一篇标题}
 
-\newcommand{\SeriesCardEnd}[3]{...}
-% 使用：
-%\SeriesCardEnd{I}{上一篇标题}{下一篇标题}
-
-作用：页面底部展示“集中不等式系列 · 第 I 篇 / 上一篇 / 下一篇”。
-
-修改：
-	•	改文案：把文本 集中不等式系列 · 第 修改为你的系列名称。
-	•	改边框与背景色：brand / soft。
+	•	作用：页末展示系列名称与上一篇/下一篇。
+	•	修改：改文案或颜色（brand/soft）。
 
 ⸻
 
-15) 常见问题（Troubleshooting）
-	•	(1) 编译报错：请使用 XeLaTeX / LuaLaTeX
-	•	原因：样式强制检查编译引擎。
-	•	(2) 页眉高度警告 headheight
-	•	解决：在 fancyhdr 后加 \setlength{\headheight}{14pt}（某些平台需要）。
-	•	(3) 中文字体缺失
-	•	安装 Noto Serif CJK SC 或改为本机字体：Songti SC（macOS）、SimSun（Windows）。
+15) 最小示例（MWE）
+
+\documentclass[12pt]{article}
+% 这里粘贴你的风格代码（或 \usepackage{miextras}）
+
+\begin{document}
+\setchapter{1}{概率空间}
+\ChapterHeading
+
+\section{基本定义}
+\begin{definition}[样例]
+这是定义环境示例。
+\end{definition}
+
+\begin{ShadedTheorem}[样例]
+这是阴影定理环境示例。
+\end{ShadedTheorem}
+
+\begin{proof}
+这是证明示例。
+\end{proof}
+
+\begin{KeyBox}
+这是 Key Idea 高亮盒子。
+\end{KeyBox}
+
+\begin{SideBar}
+阅读提示与要点。
+\end{SideBar}
+
+\end{document}
+
 
 ⸻
 
+16) 关于 MIStatlE
 
-Happy TeXing! 🎉 如果你希望把这份导言封装为 miextras.sty，我可以再给你一份最小化打包版本与 API 一览表。
+MIStatlE 是作者在概率论、统计学与机器学习理论方向的统一写作签名与样式设计。模板追求：简洁美观、结构清晰、可复用、可维护。欢迎在此基础上做个性化扩展（封面、mini-TOC、品牌 logo 等）。
+
+⸻
+
+Happy TeXing! 如果需要，我可以基于此再打包一个精简版 miextras.sty 与 API 一览表。
 
