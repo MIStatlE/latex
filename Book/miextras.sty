@@ -1,0 +1,238 @@
+%% miextras.sty — 版式与宏定义（需 XeLaTeX / LuaLaTeX）
+%% ----------------------------------------------------------------
+%% 用途：一本书/讲义的统一风格（配色、页眉页脚、彩带、盒子、定理环境等）
+%% 用法：在主文档导言区 \usepackage{miextras} 即可
+%% 备注：如需自定义颜色/页边距/页眉内容，可在加载后重定义相应宏
+%% ----------------------------------------------------------------
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{miextras}[2025/08/31 MIStatlE book style]
+
+% ==== 1) 引擎检查（必须 XeLaTeX 或 LuaLaTeX；否则直接报错） ====
+\usepackage{ifxetex,ifluatex}
+\usepackage{everypage} % 提供 \AddEverypageHook；旧版兼容见下
+\ifxetex\else\ifluatex\else
+  \errmessage{Please compile with XeLaTeX or LuaLaTeX}
+\fi\fi
+
+% ==== 2) 字体 + 页面设置 ====
+% - ctex + fontspec：中文/英文字体
+% - geometry：纸张与边距（默认 6x9 书籍尺寸，边距 0.8 in）
+% - xcolor：颜色定义（支持 HTML HEX）
+\usepackage{ctex,fontspec,geometry,xcolor}
+\geometry{paperwidth=6in,paperheight=9in, margin=0.8in}
+% 默认英文字体；可在主文档里 \setmainfont{...} 覆盖
+\setmainfont{Times New Roman}
+% 中文主字体：首选 Noto Serif CJK SC，不在则回退到 FandolSong
+\IfFontExistsTF{Noto Serif CJK SC}{\setCJKmainfont{Noto Serif CJK SC}}{\setCJKmainfont{FandolSong}}
+\linespread{1.35} % 行距（适合书籍）
+\pagecolor{white}\color{black} % 纸张/文本颜色
+
+% ==== 3) 调色板（统一管理所有颜色；可在此处改 HEX） ====
+\definecolor{brand}{HTML}{1A9D8F}   % 品牌主色（绿松石）
+\definecolor{brandD}{HTML}{2A7F6F}  % 品牌深色
+\definecolor{ink}{HTML}{1A1A1A}     % 正文主文本
+\definecolor{keybg}{HTML}{E8F4F1}   % 轻背景（彩带/盒子背景）
+\definecolor{keydark}{HTML}{2F5E58} % 深色（标题/彩带）
+\definecolor{accent}{HTML}{FF6B6B}  % 强调（红）
+\definecolor{accentD}{HTML}{D94F4F} % 强调深色
+\definecolor{soft}{HTML}{F3F8F7}    % 柔色背景
+
+% ==== 4) 日期宏（YYYY·MM·DD） ====
+\newcommand{\padzero}[1]{\ifnum#1<10 0\fi\number#1}
+\newcommand{\BrandYMD}{{\the\year·\padzero{\the\month}·\padzero{\the\day}}}
+
+% ==== 5) 左侧彩带（每页左侧两条竖色带，可关闭见 hook 配置） ====
+\usepackage{tikz,eso-pic}
+\usetikzlibrary{positioning,calc}
+\newcommand{\LeftBandA}{0.12in} % 深色带宽度
+\newcommand{\LeftBandB}{0.28in} % 浅色带右边界（相对页左）
+\newcommand{\PutLeftBands}{%
+  \begin{tikzpicture}[remember picture, overlay]
+    % 深色带
+    \fill[keydark] ([xshift=0cm]current page.north west)
+                   rectangle ([xshift=\LeftBandA]current page.south west);
+    % 浅色带
+    \fill[keybg]   ([xshift=\LeftBandA]current page.north west)
+                   rectangle ([xshift=\LeftBandB]current page.south west);
+  \end{tikzpicture}%
+}
+% 兼容不同 everypage 版本：有 \AddEverypageHook 则用之，否则退回 \AddToShipoutPictureBG
+\makeatletter
+\@ifundefined{AddEverypageHook}{
+  \AddToShipoutPictureBG*{\PutLeftBands}
+}{
+  \AddEverypageHook{\PutLeftBands}
+}
+\makeatother
+% 若想关闭彩带：注释上面两行 Hook 调用，或在主文档里重定义 \PutLeftBands 为空
+
+% ==== 6) 页眉页脚（fancyhdr；保持左右切换：偶页左/奇页右） ====
+\usepackage{fancyhdr}
+\setlength{\headheight}{14pt} % 避免 headheight 警告（配合大字号标题）
+
+\pagestyle{fancy}
+\fancyhf{} % 清空默认
+\renewcommand{\headrulewidth}{0.4pt} % 页眉横线
+% book：\leftmark=章标题，\rightmark=节标题；保持左右切换布局
+\fancyhead[LE]{\nouppercase{\leftmark}}  % 偶数页左：章标题
+\fancyhead[RO]{\nouppercase{\rightmark}} % 奇数页右：节标题
+% 页脚：页码 + 签名（可在主文档里重定义 \seriesnum 或整行）
+\fancyfoot[LE,RO]{\textcolor{brand}{\thepage}}
+\fancyfoot[LO,RE]{\textcolor{brand}{@MIStatlE｜集中不等式 \seriesnum}}
+
+% 封面页样式（无眉脚）；用法：封面页 \thispagestyle{coverstyle}
+\fancypagestyle{coverstyle}{
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+% 将 plain 页式（章首页等）设为与 fancy 一致，保证有眉脚
+% 如需章首页不显示眉脚，可将本段改成空样式（或 \thispagestyle{empty}）
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \fancyhead[LE]{\nouppercase{\leftmark}}
+  \fancyhead[RO]{\nouppercase{\rightmark}}
+  \fancyfoot[LE,RO]{\textcolor{brand}{\thepage}}
+  \fancyfoot[LO,RE]{\textcolor{brand}{@MIStatlE｜集中不等式 \seriesnum}}
+}
+
+% 目录页专用：整段目录不显示眉脚（内部劫持 \thispagestyle）
+% 用法：直接调用 \TOCwithoutHeadFoot 代替 \tableofcontents
+\makeatletter
+\newcommand{\TOCwithoutHeadFoot}{%
+  \begingroup
+    \let\saved@thispagestyle\thispagestyle
+    \def\thispagestyle##1{\saved@thispagestyle{empty}}% 忽略参数，强制 empty
+    \pagestyle{empty}% 目录跨页也无眉脚
+    \tableofcontents
+    \clearpage
+  \endgroup
+  \pagestyle{fancy}% 恢复正文页眉页脚
+}
+\makeatother
+
+% ==== 7) 系列编号（页脚中的 “I/II/III …”） ====
+\newcommand{\seriesnum}{I}
+% 使用：在主文档中 \renewcommand{\seriesnum}{II}
+
+% ==== 8) 标题样式（titlesec：Part/Chapter/Section） ====
+\usepackage{titlesec}
+% Part：垂直居中（通过 spacing 的 \fill），底部彩线
+\titleformat{\part}[display]
+  {\filcenter\bfseries\color{keydark}}
+  {\Large Part \thepart}{0.6em}{\Huge}
+  [\vspace{0.8em}{\color{brand}\rule{7cm}{1.2pt}}]
+\titlespacing*{\part}{0pt}{\fill}{\fill}
+
+% Chapter：中文“第X章”样式，底部分隔线为品牌深色的浅色调
+\titleformat{\chapter}[display]
+  {\bfseries\color{keydark}}
+  {\Large 第\thechapter 章}{0.4em}{\Huge}
+  [\vspace{0.4em}{\color{brandD!45}\rule{6cm}{0.8pt}}]
+\titlespacing*{\chapter}{0pt}{1.2em}{0.8em}
+
+% Section/Subsection：字号/颜色/间距
+\titleformat{\section}{\Large\bfseries\color{keydark}}{\thesection}{0.6em}{}
+\titlespacing*{\section}{0pt}{0.9em}{0.5em}
+\titleformat{\subsection}{\large\bfseries\color{brand}}{\thesubsection}{0.6em}{}
+\titlespacing*{\subsection}{0pt}{0.8em}{0.4em}
+
+% ==== 9) 高亮盒子 & 侧栏（tcolorbox + mdframed） ====
+\usepackage[most]{tcolorbox}
+% 统一盒子基础参数（圆角、线宽、内边距）
+\tcbset{enhanced, boxrule=0.9pt, arc=3pt, left=10pt,right=10pt,top=10pt,bottom=10pt}
+
+% 关键思想盒子（绿 + 白标题）
+\newtcolorbox{KeyBox}{
+  colback=keybg, colframe=brandD,
+  colbacktitle=brandD, title=\textbf{\color{white}Key Idea},
+  fonttitle=\bfseries\large, coltitle=white, breakable
+}
+
+% Takeaway 盒子（红系强调）
+\newtcolorbox{Takeaway}{
+  colback=accent!12, colframe=accentD,
+  colbacktitle=accentD, title=\textbf{\color{white}Takeaway},
+  fonttitle=\bfseries\large, coltitle=white, breakable
+}
+
+% Example 盒子（紫系示例）
+\definecolor{exframe}{HTML}{6C5CE7}
+\definecolor{exbg}{HTML}{F2E9FF}
+\newtcolorbox{Example}[1][]{%
+  enhanced, colback=exbg, colframe=exframe,
+  coltitle=white, colbacktitle=exframe,
+  title=\textbf{Example},
+  fonttitle=\bfseries, boxrule=1.1pt, arc=4pt,
+  left=10pt,right=10pt,top=10pt,bottom=10pt,
+  attach boxed title to top left = {yshift=-2mm, xshift=2mm},
+  breakable, #1
+}
+
+% 左侧竖条侧栏（品牌色竖线 + 柔背景）
+\usepackage{mdframed}
+\newmdenv[
+  topline=false, bottomline=false, rightline=false,
+  linewidth=4pt, linecolor=brand, backgroundcolor=soft,
+  innerleftmargin=10pt, innerrightmargin=10pt,
+  skipabove=6pt, skipbelow=6pt
+]{SideBar}
+
+% ==== 10) 数学与定理环境（amsthm） ====
+\usepackage{amsmath,amssymb,bm,amsthm}
+\DeclareMathOperator{\Var}{Var} % 方差算子
+\newcommand{\E}{\mathbb{E}}     % 期望符号
+\numberwithin{equation}{chapter} % 公式按章编号
+
+% 定理类：按 chapter 计数
+\theoremstyle{plain}
+\newtheorem{theorem}{定理}[chapter]
+\newtheorem{lemma}[theorem]{引理}
+\newtheorem{proposition}[theorem]{命题}
+\newtheorem{corollary}[theorem]{推论}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{定义}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{注释}
+
+% ==== 11) 极简封面 + 章引言（摘句） ====
+% 封面：无眉脚；参数：主标题/副标题/标签（可空）
+\newcommand{\MakeBookCoverUltraSimple}[3]{%
+  \thispagestyle{coverstyle}%
+  \vspace*{\fill}
+  \begin{center}
+    {\bfseries\fontsize{30}{36}\selectfont\color{keydark} #1\par}
+    \vspace{0.45em}
+    {\bfseries\fontsize{16}{22}\selectfont\color{ink!90} #2\par}
+    \vspace{0.6em}
+    \if\relax\detokenize{#3}\relax\else
+      \vspace{0.2em}
+      {\color{brandD}\fboxsep=6pt\colorbox{white}{\textbf{\textcolor{brandD}{#3}}}\par}
+    \fi
+    \vspace{0.8em}
+    {\small\color{keydark!75}\BrandYMD}
+  \end{center}
+  \vspace*{\fill}
+  \clearpage
+}
+
+% 章引言（右对齐小段落；可带作者名）
+\newcommand{\ChapterEpigraph}[2][]{%
+  \par\vspace*{0.6em}
+  \begin{flushright}
+    \begin{minipage}{0.78\linewidth}\raggedleft
+      {\itshape\color{ink!85}#2\par}%
+      \if\relax\detokenize{#1}\relax\else
+        \vspace{0.3em}{\color{ink!70}--- #1}\par
+      \fi
+    \end{minipage}
+  \end{flushright}
+  \vspace{0.6em}
+}
+
+%% ========================= End of miextras.sty =========================
