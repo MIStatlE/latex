@@ -3,9 +3,9 @@
 
 本项目包含一份核心 LaTeX 文件Book适合写长文的同学，用于书写数学相关的学习笔记与文档。
 
-last update:修复了Book文件中可能的报错 
----
 
+---
+last update 25/8/31: 修复了Book文件中可能的报错 
 ## 📂 文件说明
 
 ### 1. `miextras.sty`
