@@ -1,0 +1,73 @@
+\documentclass[10pt,openany]{book} % 可改 11pt 或 openright
+\usepackage{miextras} % ← 使用上面的风格文件
+
+\begin{document}
+
+% 封面（无眉脚）
+\MakeBookCoverUltraSimple{集中不等式（示例书名）}{高维概率与机器学习理论中的浓缩现象}{上册 · 预印本}
+
+% 目录（整段无眉脚）
+\setcounter{tocdepth}{2}
+\TOCwithoutHeadFoot
+
+% 主体
+\mainmatter
+
+\part{预备知识与工具}
+\chapter{概率预备（示例）}
+\ChapterEpigraph[Kolmogorov]{The theory of probability as a mathematical discipline can
+and should be developed from axioms in exactly the same way as geometry and algebra.}
+
+\begin{SideBar}
+\textbf{阅读建议}：本章覆盖后续章节频繁使用的定义与工具。
+\end{SideBar}
+
+\section{Orlicz 范数与次高斯}
+\begin{definition}[Orlicz 范数]
+随机变量 $Z$ 的 $\psi_2$ 范数定义为
+\[
+\|Z\|_{\psi_2} := \inf\{s>0:\ \E e^{Z^2/s^2}\le 2\}.
+\]
+\end{definition}
+
+\begin{lemma}[基本性质（示例）]
+若 $X$ 次高斯，则 $X^2-\E X^2$ 次指数。
+\end{lemma}
+
+\begin{KeyBox}
+\textbf{要点}：\(\psi_2\)-有界 $\Rightarrow$ 指数尾界；平方中心化 $\Rightarrow$ \(\psi_1\)-有界。
+\end{KeyBox}
+
+\section{Bernstein 不等式}
+\begin{theorem}[Bernstein（示例）]
+设 $Z_i$ 独立、$\|Z_i\|_{\psi_1}\le v$，则……
+\end{theorem}
+
+\begin{Takeaway}
+小偏差 $\sim \|a\|_2$，大偏差 $\sim \|a\|_\infty$。
+\end{Takeaway}
+
+\part{主结果}
+\chapter{Hanson--Wright 不等式（示例）}
+\section{定理与讨论}
+\begin{Example}
+这是一个示例环境，用于给出具体计算或反例。
+\end{Example}
+
+% 附录
+\appendix
+\part{附录}
+\chapter{符号与记号（示例）}
+\begin{itemize}
+  \item \(\E\)：数学期望
+  \item \(\Var\)：方差算子
+\end{itemize}
+
+% 参考文献
+\backmatter
+\begin{thebibliography}{9}
+\bibitem{vershynin}
+Vershynin, R. \emph{High-Dimensional Probability}. CUP, 2018.
+\end{thebibliography}
+
+\end{document}
