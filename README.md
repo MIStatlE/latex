@@ -47,5 +47,5 @@
    ```bash
    xelatex main.tex
 
-	3.	根据需要修改 main.tex 中的章节、定理与内容。
+3.	根据需要修改 main.tex 中的章节、定理与内容。
 
